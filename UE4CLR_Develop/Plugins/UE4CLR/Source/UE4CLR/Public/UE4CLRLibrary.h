@@ -9,4 +9,5 @@ class UUE4CLRLibrary : public UObject
 
 public:
 	UE4CLR_API static int Init();
+	UE4CLR_API static float Square(float x = 0);
 };
