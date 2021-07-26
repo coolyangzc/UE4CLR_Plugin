@@ -73,5 +73,6 @@ Plugins/*/Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
-# Keep files in Managed folder
+# Keep files in Managed folder and Runtime folder
 !Managed/**
+!Plugins/UE4CLR/Runtime/**

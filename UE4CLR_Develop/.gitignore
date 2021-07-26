@@ -75,3 +75,4 @@ DerivedDataCache/*
 
 # Keep files in Managed folder
 !Managed/**
+!Plugins/UE4CLR/Runtime/**
