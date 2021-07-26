@@ -44,15 +44,12 @@ void* get_export(void* h, const char* name)
 
 bool load_hostfxr()
 {
-    // Pre-allocate a large buffer for the path to hostfxr
-
-    //char_t buffer[MAX_PATH] = L"C:/Program Files/dotnet/host/fxr/5.0.7/hostfxr.dll";
-
+    // Load hostfxr and get desired exports
+    
     FString hostfxr_path = FPaths::ProjectPluginsDir() + TEXT("UE4CLR/Runtime/Win64/host/fxr/5.0.7/hostfxr.dll");
     UE_LOG(LogTemp, Warning, TEXT("hostfxr_path: %s"), *hostfxr_path);
     LOGONSCREEN(-1, 10.f, FColor::White, FString::Printf(TEXT("hostfxr_path: %s"), *hostfxr_path));
-    // Load hostfxr and get desired exports
-
+    
     void* lib = load_library(*hostfxr_path);
     globals::init_fptr = (hostfxr_initialize_for_runtime_config_fn)get_export(lib, "hostfxr_initialize_for_runtime_config");
     globals::get_delegate_fptr = (hostfxr_get_runtime_delegate_fn)get_export(lib, "hostfxr_get_runtime_delegate");
@@ -90,6 +87,7 @@ int UUE4CLRLibrary::Init()
 {
     UE_LOG(LogTemp, Warning, TEXT("In Init()"));
 
+    //Load hostfxr and start the .NET Core runtime only once
     if (!globals::been_loaded)
     {
         if (!load_hostfxr())

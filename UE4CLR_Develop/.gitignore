@@ -1,3 +1,6 @@
+# Keep files in Managed folder
+!Managed/*
+
 # Visual Studio 2015 user specific files
 .vs/
 
