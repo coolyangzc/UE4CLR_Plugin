@@ -17,6 +17,7 @@
 #define STR(s) L ## s
 #define CH(c) L ## c
 #define DIR_SEPARATOR L'\\'
+#define LOGONSCREEN GEngine->AddOnScreenDebugMessage
 
 namespace globals
 {
@@ -102,13 +103,16 @@ int UUE4CLRLibrary::Init()
 
         FString config_path = FPaths::ProjectDir() + TEXT("Managed/Build/ManagedLib.runtimeconfig.json");
         UE_LOG(LogTemp, Warning, TEXT("config_path: %s"), *config_path);
+        LOGONSCREEN(-1, 10.f, FColor::White, FString::Printf(TEXT("config_path: %s"), *config_path));
+
         globals::load_assembly_and_get_function_pointer = get_dotnet_load_assembly(*config_path);
         assert(globals::load_assembly_and_get_function_pointer != nullptr && "Failure: get_dotnet_load_assembly()");
         
         globals::lib_path = *(FPaths::ProjectDir() + TEXT("Managed/Build/ManagedLib.dll"));
-
         globals::been_loaded = true;
     }
+    UE_LOG(LogTemp, Warning, TEXT("lib_path: %s"), globals::lib_path.c_str());
+    LOGONSCREEN(-1, 10.f, FColor::White, FString::Printf(TEXT("lib_path: %s"), globals::lib_path.c_str()));
     
     return EXIT_SUCCESS;
 }

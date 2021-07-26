@@ -4,6 +4,8 @@
 #include "TestNativeHost.h"
 #include "UE4CLRLibrary.h"
 
+#define LOGONSCREEN GEngine->AddOnScreenDebugMessage
+
 // Sets default values for this component's properties
 UTestNativeHost::UTestNativeHost()
 {
@@ -19,11 +21,19 @@ UTestNativeHost::UTestNativeHost()
 void UTestNativeHost::BeginPlay()
 {
 	Super::BeginPlay();
+
+
 	UE_LOG(LogTemp, Warning, TEXT("Before Init"));
 	UUE4CLRLibrary::Init();
 	UE_LOG(LogTemp, Warning, TEXT("After Init"));
-	UE_LOG(LogTemp, Warning, TEXT("x^2 = %f"), UUE4CLRLibrary::Square(0.2));
-	UE_LOG(LogTemp, Warning, TEXT("x^2 = %f"), UUE4CLRLibrary::Square(0.4));
+
+	// Test calling managed functions
+	UE_LOG(LogTemp, Warning, TEXT("Calling Lib.square(x) in ManagedLib.dll: 0.2^2 = %f"), UUE4CLRLibrary::Square(0.2));
+	LOGONSCREEN(-1, 10.f, FColor::Yellow, 
+		FString::Printf(TEXT("Calling Lib.square(x) in ManagedLib.dll: 0.2^2 = %f"), UUE4CLRLibrary::Square(0.2)));
+	UE_LOG(LogTemp, Warning, TEXT("Calling Lib.square(x) in ManagedLib.dll: 0.4^2 = %f"), UUE4CLRLibrary::Square(0.4));
+	LOGONSCREEN(-1, 10.f, FColor::Yellow,
+		FString::Printf(TEXT("Calling Lib.square(x) in ManagedLib.dll: 0.4^2 = %f"), UUE4CLRLibrary::Square(0.4)));
 	// ...
 	
 }
