@@ -1,0 +1,110 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="$(SourceRoot)/ManagedLib/ManagedLib.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="inc/*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="inc.vs/*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <NativeBinDir>$(BinRoot)/$(Configuration)</NativeBinDir>
+    <NativeOutputName>nativehost</NativeOutputName>
+
+    <NativePlatform>$([System.Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture)</NativePlatform>
+    <NativeObjDir>$(MSBuildThisFileDirectory)obj/$(Configuration)/$(NativePlatform)/</NativeObjDir>
+    <NativeHostDirectory>$(MSBuildThisFileDirectory)</NativeHostDirectory>
+  </PropertyGroup>
+
+  <!-- Properties for MSVCFindCompilerPaths -->
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows'))">
+    <MSVCPlatform>x64</MSVCPlatform>
+    <MSVCPlatform Condition="$(NETCoreSDKRuntimeIdentifier.Contains('x86'))">x86</MSVCPlatform>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <NativeSource Include="../NativeHost/nativehost.cpp" />
+    <Clean Include="$(NativeBinDir)/$(NativeOutputName).*" />
+    <Clean Include="$(NativeObjDir)/*.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CompilerPaths" Version="[1.0.2, )" Condition="$([MSBuild]::IsOsPlatform('Windows'))" />
+  </ItemGroup>
+
+  <!-- Targets to build the native project. The output goes directly to the bin directory -->
+  <Target Name="PrepareForNativeBuild">
+    <PropertyGroup>
+      <NativeOutputExtension Condition="$([MSBuild]::IsOsPlatform('Linux'))"></NativeOutputExtension>
+      <NativeOutputExtension Condition="$([MSBuild]::IsOsPlatform('OSX'))"></NativeOutputExtension>
+      <NativeOutputExtension Condition="$([MSBuild]::IsOsPlatform('Windows'))">.exe</NativeOutputExtension>
+      <NativeOutputFilePath>$(NativeBinDir)/$(NativeOutputName)$(NativeOutputExtension)</NativeOutputFilePath>
+
+      <SourceFiles>@(NativeSource-> '"%(RootDir)%(Directory)%(Filename)%(Extension)"', ' ')</SourceFiles>
+
+      <NetHostDir>$(NetCoreTargetingPackRoot)/Microsoft.NETCore.App.Host.$(NETCoreSdkRuntimeIdentifier)/$(BundledNETCoreAppPackageVersion)/runtimes/$(NETCoreSdkRuntimeIdentifier)/native</NetHostDir>
+
+      <NetHostName Condition="$([MSBuild]::IsOsPlatform('Windows'))">nethost.dll</NetHostName>
+      <NetHostName Condition="$([MSBuild]::IsOsPlatform('Linux'))">libnethost.so</NetHostName>
+      <NetHostName Condition="$([MSBuild]::IsOsPlatform('OSX'))">libnethost.dylib</NetHostName>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(NativeBinDir)" />
+    <MakeDir Directories="$(NativeObjDir)" />
+  </Target>
+
+  <Target Name="BuildNativeProjectWindows" AfterTargets="Build" DependsOnTargets="PrepareForNativeBuild;MSVCFindCompilerPaths" Condition="$([MSBuild]::IsOsPlatform('Windows'))">
+    <PropertyGroup>
+      <IncPaths>@(MSVCIncludePaths-> '/I "%(RootDir)%(Directory)%(Filename)"', ' ')</IncPaths>
+      <IncPaths>$(IncPaths) /I inc /I "$(NetHostDir)"</IncPaths>
+      <CompilerArgs>/EHsc /Od /GS /sdl /Zi</CompilerArgs>
+      <PreprocessorDefines>/D WINDOWS</PreprocessorDefines>
+      <LibPaths>@(MSVCLibPaths-> '/LIBPATH:"%(RootDir)%(Directory)%(Filename)"', ' ')</LibPaths>
+      <LibPaths>$(LibPaths) "$(NetHostDir)\nethost.lib"</LibPaths>
+    </PropertyGroup>
+
+    <Exec Command="&quot;$(MSVCCompilerPath)&quot; $(SourceFiles) $(IncPaths) $(PreprocessorDefines) $(CompilerArgs) /link $(LibPaths) /out:&quot;$(NativeOutputFilePath)&quot;" WorkingDirectory="$(NativeObjDir)" ConsoleToMsBuild="true" />
+
+    <Copy SourceFiles="$(NetHostDir)/$(NetHostName)" DestinationFolder="$(NativeBinDir)" SkipUnchangedFiles="True" />
+
+    <Message Importance="High" Text="BuildNativeProjectWindows Finished" />
+
+  </Target>
+
+  <Target Name="PrintDirectories" AfterTargets="Build" DependsOnTargets="PrepareForNativeBuild;BuildNativeProjectWindows">
+
+    <Message Importance="High" Text="Source = $(SourceRoot)" />
+    <Message Importance="High" Text="Bin = $(BinRoot)" />
+    <Message Importance="High" Text="NativeSource = @(NativeSource)" />
+    <Message Importance="High" Text="SourceFiles = $(SourceFiles)" />
+    <Message Importance="High" Text="Command_BuildNativeProjectWindows = &quot;$(MSVCCompilerPath)&quot; $(SourceFiles) $(IncPaths) $(PreprocessorDefines) $(CompilerArgs) /link $(LibPaths) /out:&quot;$(NativeOutputFilePath)&quot;" />
+    <Message Importance="High" Text="IncPaths = $(IncPaths)" />
+    <Message Importance="High" Text="PreprocessorDefines = $(PreprocessorDefines)" />
+    <Message Importance="High" Text="CompilerArgs = $(CompilerArgs)" />
+    <Message Importance="High" Text="LibPaths = $(LibPaths)" />
+    <Message Importance="High" Text="WorkingDirectory = $(NativeObjDir)" />
+    <Message Importance="High" Text="NetHostDir = $(NetHostDir)" />
+    <Message Importance="High" Text="NetHostName = $(NetHostName)" />
+    <Message Importance="High" Text="NetCoreTargetingPackRoot = $(NetCoreTargetingPackRoot)" />
+    <Message Importance="High" Text="NETCoreSdkRuntimeIdentifier = $(NETCoreSdkRuntimeIdentifier)" />
+    <Message Importance="High" Text="BundledNETCoreAppPackageVersion = $(BundledNETCoreAppPackageVersion)" />
+
+  </Target>
+
+</Project>

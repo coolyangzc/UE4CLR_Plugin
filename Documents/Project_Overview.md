@@ -22,3 +22,7 @@ UE4CLR插件，直接复制到UE4项目中使用。
 - Managed/Build：存放编译好的托管代码类库，在本示例中即为ManagedLib.dll与其他相关文件。
 - Plugins/UE4CLR：将UE4CLR插件直接复制于此即可。
 - Source/UE4CLR_Test/TestUE4CLR：调用UE4CLR插件的类库`UUE4CLRLibrary`并借助其接口调用`ManagedLib`类库的函数，并将结果输出在log与屏幕上。
+
+### UE4CLR_Develop
+
+开发UE4CLR插件时用的工程，基本与UE4CLR_Test相同。
