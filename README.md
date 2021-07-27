@@ -1,6 +1,8 @@
-# UE4CLR: An example plugin natively integrates .NET host into Unreal Engine 4
+# UE4CLR: An example plugin natively starts the .NET Core runtime for Unreal Engine 4
 
-UE4CLR是一个简单的UE4样例插件，通过启用.NET主机来实现在Unreal引擎中直接调用其它托管代码 (managed code)，如C#。
+UE4CLR是一个简单的UE4样例插件，通过启用.NET主机来实现在Unreal引擎中直接调用其它托管代码(managed code，如C#)中的静态方法。
+
+UE4CLR is an example plugin which natively starts the .NET Core runtime for Unreal Engine 4. It is inspired by and learned from UnrealCLR, and it keeps the minimal code to implement calling into a managed static method for learning purpose.
 
 目前仅支持Win64平台；通过测试的.NET版本为5.0.7，但应可在.NET Core 3.0与以上版本运行。
 

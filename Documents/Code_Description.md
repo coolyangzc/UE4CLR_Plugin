@@ -251,7 +251,7 @@ namespace ManagedLib
 
 <img src="doc_assets/ManagedCode.bin.png" width="400px" />
 
-之后，在ManagedCode根目录，命令行中执行`dotnet run`即可运行nativehost.exe并得到如下预期输出：
+之后，在ManagedCode根目录的命令行中执行`dotnet run`即可运行nativehost.exe并得到如下预期输出：
 
 ```
 0.04
